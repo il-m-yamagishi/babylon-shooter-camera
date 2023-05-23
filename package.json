@@ -1,0 +1,47 @@
+{
+  "name": "babylon-shooter-camera",
+  "version": "0.1.0",
+  "description": "FPS Shooter camera for babylon.js",
+  "main": "./dist/shooterCamera.umd.cjs",
+  "module": "./dist/shooterCamera.js",
+  "typings": "./dist/shooterCamera.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/shooterCamera.js",
+      "require": "./dist/shooterCamera.umd.cjs"
+    }
+  },
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/il-m-yamagishi/babylon-shooter-camera.git"
+  },
+  "keywords": [
+    "Babylon.js",
+    "Shooter",
+    "Camera"
+  ],
+  "author": "Masaru Yamagishi <akai_inu@live.jp>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/il-m-yamagishi/babylon-shooter-camera/issues"
+  },
+  "homepage": "https://github.com/il-m-yamagishi/babylon-shooter-camera#readme",
+  "dependencies": {
+    "@babylonjs/core": "^6.0.0",
+    "pepjs": "^0.5.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.2.3",
+    "typescript": "^5.0.4",
+    "vite": "^4.3.8"
+  }
+}

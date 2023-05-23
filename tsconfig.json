@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "dist",
+    "esModuleInterop": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "strict": true,
+    "target": "ES2020",
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "noResolve": false,
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
+    "types": [
+      "vite/client"
+    ]
+  },
+  "include": [
+    "lib/*",
+    "index.ts",
+    "vite.config.ts"
+  ]
+}
