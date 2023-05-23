@@ -16,12 +16,4 @@ export class ShooterCameraMouseInput extends FreeCameraMouseInput implements ICa
     public getSimpleName(): string {
         return "mouse";
     }
-
-    public attachControl(noPreventDefault?: boolean | undefined): void {
-        super.attachControl(noPreventDefault);
-    }
-
-    public detachControl(): void {
-        super.detachControl();
-    }
 }
