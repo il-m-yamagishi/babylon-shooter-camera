@@ -25,11 +25,19 @@ window.addEventListener('load', () => {
 
     const engine = new Engine(canvas);
     const scene = new Scene(engine);
+    scene.collisionsEnabled = true;
+    scene.gravity = new Vector3(0, -0.4, 0);
 
     createGround(scene);
 
     const camera = new ShooterCamera("ShooterCamera", new Vector3(0, 30, 0), scene);
     camera.attachControl(true);
+    camera.checkCollisions = true;
+    camera.applyGravity = true;
+    camera.ellipsoid = new Vector3(1.2, 1.6, 1.2);
+    window.addEventListener("click", () => {
+        engine.enterPointerlock();
+    });
     const light = new DirectionalLight("MainLight", new Vector3(0.3, -0.76, 0.55), scene);
 
     engine.runRenderLoop(() => {
