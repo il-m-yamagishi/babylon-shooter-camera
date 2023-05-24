@@ -28,7 +28,7 @@ window.addEventListener('load', () => {
 
     createGround(scene);
 
-    const camera = new ShooterCamera("ShooterCamera", Vector3.One(), scene);
+    const camera = new ShooterCamera("ShooterCamera", new Vector3(0, 30, 0), scene);
     camera.attachControl(true);
     const light = new DirectionalLight("MainLight", new Vector3(0.3, -0.76, 0.55), scene);
 

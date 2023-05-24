@@ -10,6 +10,7 @@ import type { Nullable } from "@babylonjs/core/types";
 import { DeviceSourceManager } from "@babylonjs/core/DeviceInput/InputDevices/deviceSourceManager";
 import { ShooterCamera } from "./shooterCamera";
 import { DeviceSourceType } from "@babylonjs/core/DeviceInput/internalDeviceSourceManager";
+import { Vector3 } from "@babylonjs/core";
 
 type CheckKeyName = "forward" | "backward" | "left" | "right";
 
@@ -135,13 +136,11 @@ export class ShooterCameraKeyboardInput implements ICameraInput<ShooterCamera> {
         if (down) {
             if (!this._pressedKeys[name]) {
                 this._pressedKeys[name] = true;
-                console.log(name, true);
                 return true;
             }
         } else {
             if (this._pressedKeys[name]) {
                 this._pressedKeys[name] = false;
-                console.log(name, false);
                 return true;
             }
         }
@@ -155,6 +154,8 @@ export class ShooterCameraKeyboardInput implements ICameraInput<ShooterCamera> {
         if (this._deviceSourceManager) {
             this._deviceSourceManager.onDeviceConnectedObservable.remove(this._onDeviceConnectedObserver);
             this._onDeviceConnectedObserver = null;
+            this._deviceSourceManager.dispose();
+            this._deviceSourceManager = null;
         }
         if (this.camera) {
             const scene = this.camera.getScene();
@@ -166,6 +167,37 @@ export class ShooterCameraKeyboardInput implements ICameraInput<ShooterCamera> {
 
         this._onCanvasBlurObserver = null;
         this._clearPressedKeys();
+    }
+
+    public checkInputs = () => {
+        if (!this._onDeviceConnectedObserver || !this.camera) {
+            return;
+        }
+
+        const camera = this.camera;
+        const speed = camera._computeLocalCameraSpeed();
+        const zForward = this._pressedKeys["forward"] ? speed : 0;
+        const zBackward = this._pressedKeys["backward"] ? speed: 0;
+        const xForward = this._pressedKeys["right"] ? speed : 0;
+        const xBackward = this._pressedKeys["left"] ? speed : 0;
+        const isDirectionalMove = this._isDirectionalMove();
+        const z = (zForward - zBackward) / (isDirectionalMove ? 1.41421356 : 1);
+        const x = (xForward - xBackward) / (isDirectionalMove ? 1.41421356 : 1);
+        camera._localDirection.copyFromFloats(x, 0, z);
+
+        if (camera.getScene().useRightHandedSystem) {
+            camera._localDirection.z *= -1;
+        }
+
+        // Move camera direction
+        camera.getViewMatrix().invertToRef(camera._cameraTransformMatrix);
+        Vector3.TransformNormalToRef(camera._localDirection, camera._cameraTransformMatrix, camera._transformedDirection);
+        camera.cameraDirection.addInPlace(camera._transformedDirection);
+    };
+
+    private _isDirectionalMove(): boolean {
+        return (this._pressedKeys["forward"] && (this._pressedKeys["left"] || this._pressedKeys["right"])) ||
+            (this._pressedKeys["backward"] && (this._pressedKeys["left"] || this._pressedKeys["right"]));
     }
 
     private _clearPressedKeys(): void {
