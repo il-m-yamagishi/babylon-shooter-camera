@@ -31,10 +31,14 @@ window.addEventListener('load', () => {
     createGround(scene);
 
     const camera = new ShooterCamera("ShooterCamera", new Vector3(0, 30, 0), scene);
+    camera.speed = 1.0;
+    camera.horizontalSpeed = 0.8;
+    camera.backwardSpeed = 0.6;
     camera.attachControl(true);
     camera.checkCollisions = true;
     camera.applyGravity = true;
     camera.ellipsoid = new Vector3(1.2, 1.6, 1.2);
+
     window.addEventListener("click", () => {
         engine.enterPointerlock();
     });

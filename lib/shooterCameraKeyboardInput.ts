@@ -12,7 +12,7 @@ import { ShooterCamera } from "./shooterCamera";
 import { DeviceSourceType } from "@babylonjs/core/DeviceInput/internalDeviceSourceManager";
 import { Vector3 } from "@babylonjs/core";
 
-type CheckKeyName = "forward" | "backward" | "left" | "right";
+type CheckKeyName = "forward" | "backward" | "left" | "right" | "dash";
 
 /**
  * Class for Keyboard input
@@ -25,24 +25,41 @@ export class ShooterCameraKeyboardInput implements ICameraInput<ShooterCamera> {
     public camera: Nullable<ShooterCamera> = null;
 
     /**
-     * ForwardKey character code
+     * ForwardKey inputIndex
      */
     public forwardKey = "W".charCodeAt(0);
 
     /**
-     * BackwardKey character code
+     * BackwardKey inputIndex
      */
     public backwardKey = "S".charCodeAt(0);
 
     /**
-     * LeftKey character code
+     * LeftKey inputIndex
      */
     public leftKey = "A".charCodeAt(0);
 
     /**
-     * RightKey character code
+     * RightKey inputIndex
      */
     public rightKey = "D".charCodeAt(0);
+
+    /**
+     * DashKey inputIndex
+     */
+    public dashKey = 16; // ShiftLeft
+
+    /** @internal */
+    public _forwardSpeed = 1.0;
+
+    /** @internal */
+    public _horizontalSpeed = 1.0;
+
+    /** @interval */
+    public _backwardSpeed = 1.0;
+
+    /** @internal */
+    public _dashSpeed = 1.3;
 
     /**
      * Key map which pressed at current frame
@@ -52,6 +69,7 @@ export class ShooterCameraKeyboardInput implements ICameraInput<ShooterCamera> {
         backward: false,
         left: false,
         right: false,
+        dash: false,
     };
 
     /**
@@ -123,6 +141,9 @@ export class ShooterCameraKeyboardInput implements ICameraInput<ShooterCamera> {
                     if (keyboard.inputIndex === this.rightKey) {
                         changed = changed || this._checkKeyDown("right", down);
                     }
+                    if (keyboard.inputIndex === this.dashKey) {
+                        changed = changed || this._checkKeyDown("dash", down);
+                    }
 
                     if (changed && !noPreventDefault) {
                         keyboard.preventDefault();
@@ -175,14 +196,15 @@ export class ShooterCameraKeyboardInput implements ICameraInput<ShooterCamera> {
         }
 
         const camera = this.camera;
-        const speed = camera._computeLocalCameraSpeed();
-        const zForward = this._pressedKeys["forward"] ? speed : 0;
-        const zBackward = this._pressedKeys["backward"] ? speed: 0;
-        const xForward = this._pressedKeys["right"] ? speed : 0;
-        const xBackward = this._pressedKeys["left"] ? speed : 0;
-        const isDirectionalMove = this._isDirectionalMove();
-        const z = (zForward - zBackward) / (isDirectionalMove ? 1.41421356 : 1);
-        const x = (xForward - xBackward) / (isDirectionalMove ? 1.41421356 : 1);
+        const dashSpeed = this._pressedKeys["dash"] ? this._dashSpeed : 1.0;
+        const speed = camera._computeLocalCameraSpeed() * dashSpeed;
+        const zForward = this._pressedKeys["forward"] ? speed * this._forwardSpeed : 0;
+        const zBackward = this._pressedKeys["backward"] ? speed * this._backwardSpeed : 0;
+        const xForward = this._pressedKeys["right"] ? speed * this._horizontalSpeed : 0;
+        const xBackward = this._pressedKeys["left"] ? speed * this._horizontalSpeed : 0;
+        const isDiagonalMove = this._isDiagonalMove();
+        const z = (zForward - zBackward) / (isDiagonalMove ? 1.41421356 : 1);
+        const x = (xForward - xBackward) / (isDiagonalMove ? 1.41421356 : 1);
         camera._localDirection.copyFromFloats(x, 0, z);
 
         if (camera.getScene().useRightHandedSystem) {
@@ -195,7 +217,7 @@ export class ShooterCameraKeyboardInput implements ICameraInput<ShooterCamera> {
         camera.cameraDirection.addInPlace(camera._transformedDirection);
     };
 
-    private _isDirectionalMove(): boolean {
+    private _isDiagonalMove(): boolean {
         return (this._pressedKeys["forward"] && (this._pressedKeys["left"] || this._pressedKeys["right"])) ||
             (this._pressedKeys["backward"] && (this._pressedKeys["left"] || this._pressedKeys["right"]));
     }

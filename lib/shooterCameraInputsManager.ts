@@ -8,9 +8,15 @@ import { ShooterCameraKeyboardInput } from "./shooterCameraKeyboardInput";
 import { ShooterCameraMouseInput } from "./shooterCameraMouseInput";
 
 export class ShooterCameraInputsManager extends CameraInputsManager<ShooterCamera> {
+    /** @internal */
+    public _keyboard: ShooterCameraKeyboardInput;
+
+    /** @internal */
+    public _mouse: ShooterCameraMouseInput;
+
     public constructor(camera: ShooterCamera) {
         super(camera);
-        this.add(new ShooterCameraKeyboardInput());
-        this.add(new ShooterCameraMouseInput(false));
+        this.add(this._keyboard = new ShooterCameraKeyboardInput());
+        this.add(this._mouse = new ShooterCameraMouseInput(false));
     }
 }
