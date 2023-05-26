@@ -12,7 +12,7 @@ import { ShooterCamera } from "./shooterCamera";
 import { DeviceSourceType } from "@babylonjs/core/DeviceInput/internalDeviceSourceManager";
 import { Vector3 } from "@babylonjs/core";
 
-type CheckKeyName = "forward" | "backward" | "left" | "right" | "dash";
+type CheckKeyName = "forward" | "backward" | "left" | "right" | "dash" | "jump";
 
 /**
  * Class for Keyboard input
@@ -49,6 +49,11 @@ export class ShooterCameraKeyboardInput implements ICameraInput<ShooterCamera> {
      */
     public dashKey = 16; // ShiftLeft
 
+    /**
+     * JumpKey inputIndex
+     */
+    public jumpKey = 32; // Space
+
     /** @internal */
     public _forwardSpeed = 1.0;
 
@@ -61,6 +66,12 @@ export class ShooterCameraKeyboardInput implements ICameraInput<ShooterCamera> {
     /** @internal */
     public _dashSpeed = 1.3;
 
+    /** Currently jumping */
+    private isJumping = false;
+
+    /** Jumping power +Y angle */
+    private jumpPower = 0.0;
+
     /**
      * Key map which pressed at current frame
      */
@@ -70,6 +81,7 @@ export class ShooterCameraKeyboardInput implements ICameraInput<ShooterCamera> {
         left: false,
         right: false,
         dash: false,
+        jump: false,
     };
 
     /**
@@ -144,6 +156,9 @@ export class ShooterCameraKeyboardInput implements ICameraInput<ShooterCamera> {
                     if (keyboard.inputIndex === this.dashKey) {
                         changed = changed || this._checkKeyDown("dash", down);
                     }
+                    if (keyboard.inputIndex === this.jumpKey) {
+                        changed = changed || this._checkKeyDown("jump", down);
+                    }
 
                     if (changed && !noPreventDefault) {
                         keyboard.preventDefault();
@@ -196,6 +211,20 @@ export class ShooterCameraKeyboardInput implements ICameraInput<ShooterCamera> {
         }
 
         const camera = this.camera;
+
+        // handle jump
+        if (this.isJumping) {
+            this.jumpPower *= 0.2;
+            if (this.jumpPower < 0.01) {
+                this.isJumping = false;
+                this.jumpPower = 0.0;
+            }
+        } else if (this._pressedKeys["jump"]) {
+            // start jumping
+            this.isJumping = true;
+            this.jumpPower = 0.2;
+        }
+
         const dashSpeed = this._pressedKeys["dash"] ? this._dashSpeed : 1.0;
         const speed = camera._computeLocalCameraSpeed() * dashSpeed;
         const zForward = this._pressedKeys["forward"] ? speed * this._forwardSpeed : 0;
@@ -205,7 +234,7 @@ export class ShooterCameraKeyboardInput implements ICameraInput<ShooterCamera> {
         const isDiagonalMove = this._isDiagonalMove();
         const z = (zForward - zBackward) / (isDiagonalMove ? 1.41421356 : 1);
         const x = (xForward - xBackward) / (isDiagonalMove ? 1.41421356 : 1);
-        camera._localDirection.copyFromFloats(x, 0, z);
+        camera._localDirection.copyFromFloats(x, this.jumpPower, z);
 
         if (camera.getScene().useRightHandedSystem) {
             camera._localDirection.z *= -1;

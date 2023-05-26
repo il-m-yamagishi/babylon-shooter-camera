@@ -11,11 +11,13 @@ export default defineConfig({
         rollupOptions: {
             external: [
                 /\@babylonjs\/core.*/,
+                /\@babylonjs\/gui.*/,
                 "pepjs",
             ],
             output: {
                 globals: {
                     "@babylonjs/core": "BABYLON",
+                    "@babylonjs/gui": "BABYLON.GUI",
                 },
             },
         },

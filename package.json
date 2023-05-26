@@ -40,6 +40,7 @@
     "pepjs": "^0.5.3"
   },
   "devDependencies": {
+    "@babylonjs/gui": "^6.5.0",
     "@types/node": "^20.2.3",
     "typescript": "^5.0.4",
     "vite": "^4.3.8"
